@@ -19,7 +19,6 @@ module aib_channel
   // Configuration signals
   input  logic              c_chn_rotated,
   input  logic              c_chn_mst_mode,
-  input  logic              c_chn_ddr_mode,
 
   input  logic              c_io_tx_en      [95:0],
   input  logic              c_io_ddr_mode   [95:0],
@@ -79,7 +78,6 @@ module aib_channel
 
     .c_chn_rotated   (c_chn_rotated),
     .c_chn_mst_mode  (c_chn_mst_mode),
-    .c_chn_ddr_mode  (c_chn_ddr_mode),
 
     .c_io_tx_en      (c_io_tx_en),
     .c_io_ddr_mode   (c_io_ddr_mode),

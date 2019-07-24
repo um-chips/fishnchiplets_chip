@@ -14,7 +14,6 @@ module aib_io_mapping
 
   input  logic              c_chn_rotated,
   input  logic              c_chn_mst_mode,
-  input  logic              c_chn_ddr_mode,
 
   input  logic              c_io_tx_en      [95:0],
   input  logic              c_io_ddr_mode   [95:0],
@@ -101,14 +100,10 @@ module aib_io_mapping
         for (int i = 0; i < 20; i++)
           tx_clk_en[i] = 1'b1;
 
-        if (c_chn_ddr_mode)
-          for (int i = 0; i < 20; i++) begin
-            iob_tx_data0[i] = i_tx_data0[i];
-            iob_tx_data1[i] = i_tx_data1[i];
-          end
-        else
-          for (int i = 0; i < 20; i++)
-            iob_tx_data0[i] = i_tx_data0[i];
+        for (int i = 0; i < 20; i++) begin
+          iob_tx_data0[i] = i_tx_data0[i];
+          iob_tx_data1[i] = i_tx_data1[i];
+        end
       end
       // -----------------------------------------------------------------------
       // Not rotated, slave mode
@@ -122,14 +117,10 @@ module aib_io_mapping
         for (int i = 20; i < 40; i++)
           tx_clk_en[i] = 1'b1;
 
-        if (c_chn_ddr_mode)
-          for (int i = 20; i < 40; i++) begin
-            iob_tx_data0[i] = i_tx_data0[i-20];
-            iob_tx_data1[i] = i_tx_data1[i-20];
-          end
-        else
-          for (int i = 20; i < 40; i++)
-            iob_tx_data0[i] = i_tx_data0[i-20];
+        for (int i = 20; i < 40; i++) begin
+          iob_tx_data0[i] = i_tx_data0[i-20];
+          iob_tx_data1[i] = i_tx_data1[i-20];
+        end
       end
     end
     // -------------------------------------------------------------------------
@@ -140,50 +131,26 @@ module aib_io_mapping
       tx_clk_en[79] = 1'b1; iob_tx_data0[79] = 1'b0; iob_tx_data1[79] = 1'b1;
       tx_clk_en[78] = 1'b1; iob_tx_data0[78] = 1'b1; iob_tx_data1[78] = 1'b0;
 
-      if (c_chn_ddr_mode) begin
-        tx_clk_en[52] = 1'b1; iob_tx_data0[52] = i_tx_data0[ 0]; iob_tx_data1[52] = i_tx_data1[ 0];
-        tx_clk_en[51] = 1'b1; iob_tx_data0[51] = i_tx_data0[ 1]; iob_tx_data1[51] = i_tx_data1[ 1];
-        tx_clk_en[59] = 1'b1; iob_tx_data0[59] = i_tx_data0[ 2]; iob_tx_data1[59] = i_tx_data1[ 2];
-        tx_clk_en[57] = 1'b1; iob_tx_data0[57] = i_tx_data0[ 3]; iob_tx_data1[57] = i_tx_data1[ 3];
-        tx_clk_en[81] = 1'b1; iob_tx_data0[81] = i_tx_data0[ 4]; iob_tx_data1[81] = i_tx_data1[ 4];
-        tx_clk_en[80] = 1'b1; iob_tx_data0[80] = i_tx_data0[ 5]; iob_tx_data1[80] = i_tx_data1[ 5];
-        tx_clk_en[65] = 1'b1; iob_tx_data0[65] = i_tx_data0[ 6]; iob_tx_data1[65] = i_tx_data1[ 6];
-        tx_clk_en[64] = 1'b1; iob_tx_data0[64] = i_tx_data0[ 7]; iob_tx_data1[64] = i_tx_data1[ 7];
-        tx_clk_en[86] = 1'b1; iob_tx_data0[86] = i_tx_data0[ 8]; iob_tx_data1[86] = i_tx_data1[ 8];
-        tx_clk_en[87] = 1'b1; iob_tx_data0[87] = i_tx_data0[ 9]; iob_tx_data1[87] = i_tx_data1[ 9];
-        tx_clk_en[88] = 1'b1; iob_tx_data0[88] = i_tx_data0[10]; iob_tx_data1[88] = i_tx_data1[10];
-        tx_clk_en[89] = 1'b1; iob_tx_data0[89] = i_tx_data0[11]; iob_tx_data1[89] = i_tx_data1[11];
-        tx_clk_en[82] = 1'b1; iob_tx_data0[82] = i_tx_data0[12]; iob_tx_data1[82] = i_tx_data1[12];
-        tx_clk_en[83] = 1'b1; iob_tx_data0[83] = i_tx_data0[13]; iob_tx_data1[83] = i_tx_data1[13];
-        tx_clk_en[70] = 1'b1; iob_tx_data0[70] = i_tx_data0[14]; iob_tx_data1[70] = i_tx_data1[14];
-        tx_clk_en[71] = 1'b1; iob_tx_data0[71] = i_tx_data0[15]; iob_tx_data1[71] = i_tx_data1[15];
-        tx_clk_en[92] = 1'b1; iob_tx_data0[92] = i_tx_data0[16]; iob_tx_data1[92] = i_tx_data1[16];
-        tx_clk_en[93] = 1'b1; iob_tx_data0[93] = i_tx_data0[17]; iob_tx_data1[93] = i_tx_data1[17];
-        tx_clk_en[67] = 1'b1; iob_tx_data0[67] = i_tx_data0[18]; iob_tx_data1[67] = i_tx_data1[18];
-        tx_clk_en[66] = 1'b1; iob_tx_data0[66] = i_tx_data0[19]; iob_tx_data1[66] = i_tx_data1[19];
-      end
-      else begin
-        tx_clk_en[52] = 1'b1; iob_tx_data0[52] = i_tx_data0[ 0];
-        tx_clk_en[51] = 1'b1; iob_tx_data0[51] = i_tx_data0[ 1];
-        tx_clk_en[59] = 1'b1; iob_tx_data0[59] = i_tx_data0[ 2];
-        tx_clk_en[57] = 1'b1; iob_tx_data0[57] = i_tx_data0[ 3];
-        tx_clk_en[81] = 1'b1; iob_tx_data0[81] = i_tx_data0[ 4];
-        tx_clk_en[80] = 1'b1; iob_tx_data0[80] = i_tx_data0[ 5];
-        tx_clk_en[65] = 1'b1; iob_tx_data0[65] = i_tx_data0[ 6];
-        tx_clk_en[64] = 1'b1; iob_tx_data0[64] = i_tx_data0[ 7];
-        tx_clk_en[86] = 1'b1; iob_tx_data0[86] = i_tx_data0[ 8];
-        tx_clk_en[87] = 1'b1; iob_tx_data0[87] = i_tx_data0[ 9];
-        tx_clk_en[88] = 1'b1; iob_tx_data0[88] = i_tx_data0[10];
-        tx_clk_en[89] = 1'b1; iob_tx_data0[89] = i_tx_data0[11];
-        tx_clk_en[82] = 1'b1; iob_tx_data0[82] = i_tx_data0[12];
-        tx_clk_en[83] = 1'b1; iob_tx_data0[83] = i_tx_data0[13];
-        tx_clk_en[70] = 1'b1; iob_tx_data0[70] = i_tx_data0[14];
-        tx_clk_en[71] = 1'b1; iob_tx_data0[71] = i_tx_data0[15];
-        tx_clk_en[92] = 1'b1; iob_tx_data0[92] = i_tx_data0[16];
-        tx_clk_en[93] = 1'b1; iob_tx_data0[93] = i_tx_data0[17];
-        tx_clk_en[67] = 1'b1; iob_tx_data0[67] = i_tx_data0[18];
-        tx_clk_en[66] = 1'b1; iob_tx_data0[66] = i_tx_data0[19];
-      end
+      tx_clk_en[52] = 1'b1; iob_tx_data0[52] = i_tx_data0[ 0]; iob_tx_data1[52] = i_tx_data1[ 0];
+      tx_clk_en[51] = 1'b1; iob_tx_data0[51] = i_tx_data0[ 1]; iob_tx_data1[51] = i_tx_data1[ 1];
+      tx_clk_en[59] = 1'b1; iob_tx_data0[59] = i_tx_data0[ 2]; iob_tx_data1[59] = i_tx_data1[ 2];
+      tx_clk_en[57] = 1'b1; iob_tx_data0[57] = i_tx_data0[ 3]; iob_tx_data1[57] = i_tx_data1[ 3];
+      tx_clk_en[81] = 1'b1; iob_tx_data0[81] = i_tx_data0[ 4]; iob_tx_data1[81] = i_tx_data1[ 4];
+      tx_clk_en[80] = 1'b1; iob_tx_data0[80] = i_tx_data0[ 5]; iob_tx_data1[80] = i_tx_data1[ 5];
+      tx_clk_en[65] = 1'b1; iob_tx_data0[65] = i_tx_data0[ 6]; iob_tx_data1[65] = i_tx_data1[ 6];
+      tx_clk_en[64] = 1'b1; iob_tx_data0[64] = i_tx_data0[ 7]; iob_tx_data1[64] = i_tx_data1[ 7];
+      tx_clk_en[86] = 1'b1; iob_tx_data0[86] = i_tx_data0[ 8]; iob_tx_data1[86] = i_tx_data1[ 8];
+      tx_clk_en[87] = 1'b1; iob_tx_data0[87] = i_tx_data0[ 9]; iob_tx_data1[87] = i_tx_data1[ 9];
+      tx_clk_en[88] = 1'b1; iob_tx_data0[88] = i_tx_data0[10]; iob_tx_data1[88] = i_tx_data1[10];
+      tx_clk_en[89] = 1'b1; iob_tx_data0[89] = i_tx_data0[11]; iob_tx_data1[89] = i_tx_data1[11];
+      tx_clk_en[82] = 1'b1; iob_tx_data0[82] = i_tx_data0[12]; iob_tx_data1[82] = i_tx_data1[12];
+      tx_clk_en[83] = 1'b1; iob_tx_data0[83] = i_tx_data0[13]; iob_tx_data1[83] = i_tx_data1[13];
+      tx_clk_en[70] = 1'b1; iob_tx_data0[70] = i_tx_data0[14]; iob_tx_data1[70] = i_tx_data1[14];
+      tx_clk_en[71] = 1'b1; iob_tx_data0[71] = i_tx_data0[15]; iob_tx_data1[71] = i_tx_data1[15];
+      tx_clk_en[92] = 1'b1; iob_tx_data0[92] = i_tx_data0[16]; iob_tx_data1[92] = i_tx_data1[16];
+      tx_clk_en[93] = 1'b1; iob_tx_data0[93] = i_tx_data0[17]; iob_tx_data1[93] = i_tx_data1[17];
+      tx_clk_en[67] = 1'b1; iob_tx_data0[67] = i_tx_data0[18]; iob_tx_data1[67] = i_tx_data1[18];
+      tx_clk_en[66] = 1'b1; iob_tx_data0[66] = i_tx_data0[19]; iob_tx_data1[66] = i_tx_data1[19];
     end
   end
 
