@@ -15,6 +15,9 @@ module aib_io_mapping
   input  logic              c_chn_rotated,
   input  logic              c_chn_mst_mode,
 
+  input  logic              c_ns_adapter_rstn,
+  input  logic              c_ns_mac_rdy,
+
   input  logic              c_io_tx_en      [95:0],
   input  logic              c_io_ddr_mode   [95:0],
   input  logic              c_io_async_mode [95:0],
@@ -24,6 +27,7 @@ module aib_io_mapping
   input  logic              c_drv_pull_down [95:0],
 
   input  logic              i_tx_clk,
+  input  logic              i_tx_clk_div2,
   input  logic  [  19 : 0 ] i_tx_data0,
   input  logic  [  19 : 0 ] i_tx_data1,
 
@@ -56,12 +60,28 @@ module aib_io_mapping
   // Tx I/O mapping
   // ---------------------------------------------------------------------------
 
+  // TODO add free-running clock
+  generate
+    for (genvar gi = 0; gi < 96; gi++) begin : cg_tx_clk
+      // [48]: ns_rcv_div2_clk / [55]: ns_rcv_div2_clkb
+      // [53]: ns_fwd_div2_clk / [54]: ns_fwd_div2_clkb
+      if (gi == 48 || gi == 55 || gi == 53 || gi == 54)
+        b15cilb01ah1n02x3 inst (
+          .clk(i_tx_clk_div2), .en(tx_clk_en[gi]), .te(1'b0), .clkout(iob_tx_clk[gi])
+        );
+      else
+        b15cilb01ah1n02x3 inst (
+          .clk(i_tx_clk), .en(tx_clk_en[gi]), .te(1'b0), .clkout(iob_tx_clk[gi])
+        );
+    end
+  endgenerate
+
   always_comb begin
+    tx_clk_en = '{default: 0};
+
     iob_tx_data0      = '{default: 0};
     iob_tx_data1      = '{default: 0};
     iob_tx_data_async = '{default: 0};
-
-    tx_clk_en = '{default: 0};
 
     if (!c_chn_rotated) begin
       // -----------------------------------------------------------------------
@@ -69,18 +89,20 @@ module aib_io_mapping
       // -----------------------------------------------------------------------
       if (c_chn_mst_mode) begin
         // [56]: ns_adapter_rstn
-        iob_tx_data_async[56] = 1'b1;
+        iob_tx_data_async[56] = c_ns_adapter_rstn;
 
         // [45]: ns_mac_rdy
-        iob_tx_data_async[45] = 1'b1;
+        iob_tx_data_async[45] = c_ns_mac_rdy;
 
         // [85]: ns_sr_clk / [84]: ns_sr_clkb
         tx_clk_en[85] = 1'b1; iob_tx_data0[85] = 1'b0; iob_tx_data1[85] = 1'b1;
         tx_clk_en[84] = 1'b1; iob_tx_data0[84] = 1'b1; iob_tx_data1[84] = 1'b0;
         // [95]: ns_sr_data
-        iob_tx_data_async[95] = 1'b1;
+        iob_tx_data_async[95] = 1'b1; // faking it with a constant 1 since we're
+                                      // not using the shift registers
         // [94]: ns_sr_load
-        iob_tx_data_async[94] = 1'b1;
+        iob_tx_data_async[94] = 1'b1; // faking it with a constant 1 since we're
+                                      // not using the shift registers
 
         // [87]: ns_rcv_clk / [86]: ns_rcv_clkb
         tx_clk_en[87] = 1'b1; iob_tx_data0[87] = 1'b0; iob_tx_data1[87] = 1'b1;
@@ -97,10 +119,9 @@ module aib_io_mapping
         tx_clk_en[54] = 1'b1; iob_tx_data0[54] = 1'b1; iob_tx_data1[54] = 1'b0;
 
         // [19:0]: tx
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 20; i++) begin
           tx_clk_en[i] = 1'b1;
 
-        for (int i = 0; i < 20; i++) begin
           iob_tx_data0[i] = i_tx_data0[i];
           iob_tx_data1[i] = i_tx_data1[i];
         end
@@ -114,10 +135,9 @@ module aib_io_mapping
         tx_clk_en[42] = 1'b1; iob_tx_data0[42] = 1'b1; iob_tx_data1[42] = 1'b0;
 
         // [39:20]: tx
-        for (int i = 20; i < 40; i++)
+        for (int i = 20; i < 40; i++) begin
           tx_clk_en[i] = 1'b1;
 
-        for (int i = 20; i < 40; i++) begin
           iob_tx_data0[i] = i_tx_data0[i-20];
           iob_tx_data1[i] = i_tx_data1[i-20];
         end
@@ -154,15 +174,6 @@ module aib_io_mapping
     end
   end
 
-  // TODO ns_sr_clk should use free-running clock, div2_clk use half frequency clock
-  generate
-    for (genvar gi = 0; gi < 96; gi++) begin : icg_tx_clk
-      b15cilb01ah1n02x3 icg (
-        .clk(i_tx_clk), .en(tx_clk_en[gi]), .te(1'b0), .clkout(iob_tx_clk[gi])
-      );
-    end
-  endgenerate
-
   // ---------------------------------------------------------------------------
   // Rx I/O mapping
   // ---------------------------------------------------------------------------
@@ -170,25 +181,26 @@ module aib_io_mapping
   logic rx_bump_clk_not_rotated;
   logic rx_bump_clk_rotated;
 
-  // When NOT rotated, slave mode uses [41]: mst->slv fwd_clk, master mode uses [43]: slv->mst fwd_clk
+  // If NOT rotated, slave mode uses [41]: mst->slv fwd_clk, master mode uses [43]: slv->mst fwd_clk
   b15mbn022ah1n02x5 DT_rx_bump_clk_not_rotated_mux (
     .a(iob_rx_data_async[43]), .b(iob_rx_data_async[41]), .sa(c_chn_mst_mode), .o(rx_bump_clk_not_rotated)
   );
-  // When ROTATED, chiplet can only be in slave mode and uses [84]: mst->slv fwd_clk
+  // If ROTATED, chiplet can only be in slave mode and uses [84]: mst->slv fwd_clk
   assign rx_bump_clk_rotated = iob_rx_data_async[84];
 
   b15mbn022ah1n02x5 DT_rx_bump_clk_mux (
     .a(rx_bump_clk_rotated), .b(rx_bump_clk_not_rotated), .sa(c_chn_rotated), .o(rx_bump_clk)
   );
 
-  //DLY4_X1N_A7P5PP96PTS_C16 DT_rx_sample_clk_dly (.A(rx_bump_clk), .Y(rx_sample_clk));
+  // TODO add delay cell for the retime clock
   assign rx_sample_clk = rx_bump_clk;
   assign rx_retime_clk = rx_bump_clk;
 
   always_comb
+    // TODO only apply clock to those in need
     for (int i = 0; i < 96; i++) begin
-      iob_rx_sample_clk[i] = 1'b1 & rx_sample_clk;
-      iob_rx_retime_clk[i] = 1'b1 & rx_retime_clk;
+      iob_rx_sample_clk[i] = rx_sample_clk;
+      iob_rx_retime_clk[i] = rx_retime_clk;
     end
 
   always_comb begin

@@ -20,6 +20,9 @@ module aib_channel
   input  logic              c_chn_rotated,
   input  logic              c_chn_mst_mode,
 
+  input  logic              c_ns_adapter_rstn,
+  input  logic              c_ns_mac_rdy,
+
   input  logic              c_io_tx_en      [95:0],
   input  logic              c_io_ddr_mode   [95:0],
   input  logic              c_io_async_mode [95:0],
@@ -47,10 +50,6 @@ module aib_channel
   logic [  19 : 0 ] rx_data1;
 
   // ---------------------------------------------------------------------------
-  //aib_control u_aib_control (
-  //);
-
-  // ---------------------------------------------------------------------------
   aib_adapter u_aib_adapter (
     .i_aib_clk      (i_aib_clk),
     .i_aib_clk_div2 (i_aib_clk_div2),
@@ -74,25 +73,29 @@ module aib_channel
 
   // ---------------------------------------------------------------------------
   aib_io_mapping u_aib_io_mapping (
-    .iopad           (iopad),
+    .iopad             (iopad),
 
-    .c_chn_rotated   (c_chn_rotated),
-    .c_chn_mst_mode  (c_chn_mst_mode),
+    .c_chn_rotated     (c_chn_rotated),
+    .c_chn_mst_mode    (c_chn_mst_mode),
 
-    .c_io_tx_en      (c_io_tx_en),
-    .c_io_ddr_mode   (c_io_ddr_mode),
-    .c_io_async_mode (c_io_async_mode),
-    .c_drv_strength  (c_drv_strength),
-    .c_drv_pull_up   (c_drv_pull_up),
-    .c_drv_pull_down (c_drv_pull_down),
+    .c_ns_adapter_rstn (c_ns_adapter_rstn),
+    .c_ns_mac_rdy      (c_ns_mac_rdy),
 
-    .i_tx_clk        (i_aib_clk),
-    .i_tx_data0      (tx_data0),
-    .i_tx_data1      (tx_data1),
+    .c_io_tx_en        (c_io_tx_en),
+    .c_io_ddr_mode     (c_io_ddr_mode),
+    .c_io_async_mode   (c_io_async_mode),
+    .c_drv_strength    (c_drv_strength),
+    .c_drv_pull_up     (c_drv_pull_up),
+    .c_drv_pull_down   (c_drv_pull_down),
 
-    .o_rx_clk        (),
-    .o_rx_data0      (rx_data0),
-    .o_rx_data1      (rx_data1)
+    .i_tx_clk          (i_aib_clk),
+    .i_tx_clk_div2     (i_aib_clk_div2),
+    .i_tx_data0        (tx_data0),
+    .i_tx_data1        (tx_data1),
+
+    .o_rx_clk          (),
+    .o_rx_data0        (rx_data0),
+    .o_rx_data1        (rx_data1)
   );
 
 endmodule
