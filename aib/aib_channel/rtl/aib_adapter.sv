@@ -9,12 +9,11 @@
 
 module aib_adapter
 (
-  input  logic              i_aib_clk,
-  input  logic              i_aib_clk_div2,
-
   input  logic              i_rst_n,
 
   // Core side
+  input  logic              i_bus_clk,
+
   input  logic              i_tx_valid,
   output logic              o_tx_ready,
   input  logic  [  71 : 0 ] i_tx_data,
@@ -24,6 +23,9 @@ module aib_adapter
   output logic  [  71 : 0 ] o_rx_data,
 
   // AIB side
+  input  logic              i_aib_tx_clk,
+  input  logic              i_aib_rx_clk,
+
   output logic  [  19 : 0 ] o_tx_data0,
   output logic  [  19 : 0 ] o_tx_data1,
 
@@ -37,8 +39,8 @@ module aib_adapter
 
   // ---------------------------------------------------------------------------
   aib_adapter_tx u_aib_adapter_tx (
-    .i_aib_clk      (i_aib_clk),
-    .i_aib_clk_div2 (i_aib_clk_div2),
+    .i_aib_tx_clk   (i_aib_tx_clk),
+    .i_bus_clk      (i_bus_clk),
 
     .i_rst_n        (i_rst_n),
 
@@ -55,8 +57,8 @@ module aib_adapter
 
   // ---------------------------------------------------------------------------
   aib_adapter_rx u_aib_adapter_rx (
-    .i_aib_clk      (i_aib_clk),
-    .i_aib_clk_div2 (i_aib_clk_div2),
+    .i_aib_tx_clk   (i_aib_tx_clk),
+    .i_bus_clk      (i_bus_clk),
 
     .i_rst_n        (i_rst_n),
 

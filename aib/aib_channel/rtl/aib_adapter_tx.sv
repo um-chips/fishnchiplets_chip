@@ -9,8 +9,8 @@
 
 module aib_adapter_tx
 (
-  input  logic              i_aib_clk,
-  input  logic              i_aib_clk_div2,
+  input  logic              i_aib_tx_clk,
+  input  logic              i_bus_clk,
 
   input  logic              i_rst_n,
 
@@ -85,7 +85,7 @@ module aib_adapter_tx
   u_fifo (
     .rst_n      (i_rst_n),
 
-    .clk_push   (i_aib_clk_div2),
+    .clk_push   (i_bus_clk),
     .push_req_n (~fifo_wr),
     .flush_n    (1'b1),
     .data_in    (fifo_wr_data),
@@ -98,7 +98,7 @@ module aib_adapter_tx
     .part_wd    (),
     .push_error (),
 
-    .clk_pop    (i_aib_clk),
+    .clk_pop    (i_aib_tx_clk),
     .pop_req_n  (~fifo_rd),
     .data_out   (fifo_rd_data),
     .pop_empty  (fifo_rd_empty),
@@ -136,7 +136,7 @@ module aib_adapter_tx
   end
 
   // ---------------------------------------------------------------------------
-  always_ff @(posedge i_aib_clk or negedge i_rst_n)
+  always_ff @(posedge i_aib_tx_clk or negedge i_rst_n)
     if (!i_rst_n) begin
       cs            <= IDLE;
       fifo_rd_en_q  <= 1'b0;

@@ -15,9 +15,6 @@ module aib_io_mapping
   input  logic              c_chn_rotated,
   input  logic              c_chn_mst_mode,
 
-  input  logic              c_ns_adapter_rstn,
-  input  logic              c_ns_mac_rdy,
-
   input  logic              c_io_tx_en      [95:0],
   input  logic              c_io_ddr_mode   [95:0],
   input  logic              c_io_async_mode [95:0],
@@ -25,6 +22,9 @@ module aib_io_mapping
   input  logic  [   3 : 0 ] c_drv_strength  [95:0],
   input  logic              c_drv_pull_up   [95:0],
   input  logic              c_drv_pull_down [95:0],
+
+  input  logic              c_ns_adapter_rstn,
+  input  logic              c_ns_mac_rdy,
 
   input  logic              i_tx_clk,
   input  logic              i_tx_clk_div2,

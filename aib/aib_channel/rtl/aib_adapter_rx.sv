@@ -9,8 +9,8 @@
 
 module aib_adapter_rx
 (
-  input  logic              i_aib_clk,
-  input  logic              i_aib_clk_div2,
+  input  logic              i_aib_tx_clk,
+  input  logic              i_bus_clk,
 
   input  logic              i_rst_n,
 
@@ -84,7 +84,7 @@ module aib_adapter_rx
   u_fifo (
     .rst_n      (i_rst_n),
 
-    .clk_push   (i_aib_clk),
+    .clk_push   (i_aib_tx_clk),
     .push_req_n (~fifo_wr),
     .flush_n    (1'b1),
     .data_in    (fifo_wr_data),
@@ -97,7 +97,7 @@ module aib_adapter_rx
     .part_wd    (),
     .push_error (),
 
-    .clk_pop    (i_aib_clk_div2),
+    .clk_pop    (i_bus_clk),
     .pop_req_n  (~fifo_rd),
     .data_out   (fifo_rd_data),
     .pop_empty  (fifo_rd_empty),
@@ -127,7 +127,7 @@ module aib_adapter_rx
   end
 
   // ---------------------------------------------------------------------------
-  always_ff @(posedge i_aib_clk or negedge i_rst_n)
+  always_ff @(posedge i_aib_tx_clk or negedge i_rst_n)
     if (!i_rst_n) begin
       cs            <= IDLE;
       word_mark_q   <= 6'b0;
