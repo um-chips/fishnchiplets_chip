@@ -9,64 +9,120 @@
 
 module aib_adapter_tx
 (
-  input  logic              i_aib_tx_clk,
-  input  logic              i_bus_clk,
-
   input  logic              i_rst_n,
-
-  input  logic              i_tx_valid,
-  output logic              o_tx_ready,
-  input  logic  [  71 : 0 ] i_tx_data,
 
   input  logic              i_ns_fifo_full,
   input  logic              i_fs_fifo_full,
 
-  output logic  [  19 : 0 ] o_tx_data0,
-  output logic  [  19 : 0 ] o_tx_data1
+  // Core side
+  input  logic              i_bus_clk,
+
+  input  logic              i_bus_tx_valid,
+  output logic              o_bus_tx_ready,
+  input  logic  [  71 : 0 ] i_bus_tx_data,
+
+  // AIB side
+  input  logic              i_aib_tx_clk,
+
+  output logic  [  19 : 0 ] o_aib_tx_data0,
+  output logic  [  19 : 0 ] o_aib_tx_data1
 );
   // ---------------------------------------------------------------------------
-  typedef enum {
-    IDLE,
-    LOWER_WORD,
-    UPPER_WORD
-  } state;
+  // FIFO write is in core bus clock domain
+  // ---------------------------------------------------------------------------
 
+  // Signal declarations
+  // ---------------------------------------------------------------------------
   logic             fifo_wr;
   logic             fifo_wr_full;
   logic [  71 : 0 ] fifo_wr_data;
 
+  // Output assignments
+  // ---------------------------------------------------------------------------
+  assign /*output*/ o_bus_tx_ready = !fifo_wr_full;
+
+  // ---------------------------------------------------------------------------
+  assign fifo_wr      = i_bus_tx_valid & o_bus_tx_ready;
+  assign fifo_wr_data = i_bus_tx_data;
+
+  // ---------------------------------------------------------------------------
+  // FIFO read is in AIB tx clock domain
+  // ---------------------------------------------------------------------------
+
+  // Signal declarations
+  // ---------------------------------------------------------------------------
   logic             fifo_rd;
   logic             fifo_rd_empty;
   logic [  35 : 0 ] fifo_rd_data;
+
+  typedef enum {IDLE, LOWER_WORD, UPPER_WORD} state;
 
   state             cs, ns;
   logic             fifo_rd_en;
   logic             fifo_rd_en_d, fifo_rd_en_q;
 
   // ---------------------------------------------------------------------------
-  assign /*output*/ o_tx_ready = !fifo_wr_full;
-
   always_comb begin
-    o_tx_data1[19] = (cs == UPPER_WORD);
-    o_tx_data1[18] = i_ns_fifo_full;
+    o_aib_tx_data1[19] = (cs == UPPER_WORD);
+    o_aib_tx_data1[18] = i_ns_fifo_full;
 
-    o_tx_data0[19] = fifo_rd;
-    o_tx_data0[18] = 1'b0;
+    o_aib_tx_data0[19] = fifo_rd;
+    o_aib_tx_data0[18] = 1'b0;
 
     for (int i = 0; i < 18; i++) begin
-      o_tx_data1[i] = fifo_rd_data[2*i+1];
-      o_tx_data0[i] = fifo_rd_data[2*i+0];
+      o_aib_tx_data1[i] = fifo_rd_data[2*i+1];
+      o_aib_tx_data0[i] = fifo_rd_data[2*i+0];
     end
   end
 
-  // ---------------------------------------------------------------------------
-  assign fifo_wr = i_tx_valid & !fifo_wr_full;
-  assign fifo_wr_data = i_tx_data;
-
+  // We need to make sure whenever we read the FIFO we read it twice in order to
+  // get the complete data
   assign fifo_rd_en = fifo_rd_en_d | fifo_rd_en_q;
+
   assign fifo_rd = !fifo_rd_empty & fifo_rd_en;
 
   // ---------------------------------------------------------------------------
+  always_comb begin
+    ns = cs;
+    fifo_rd_en_d = fifo_rd_en_q;
+
+    case (cs)
+      IDLE:
+        ns = LOWER_WORD;
+
+      LOWER_WORD: begin
+        ns = UPPER_WORD;
+
+        if (!fifo_rd_empty & !i_fs_fifo_full)
+          fifo_rd_en_d = 1'b1;
+        else
+          fifo_rd_en_d = 1'b0;
+      end
+
+      UPPER_WORD: begin
+        ns = LOWER_WORD;
+
+        fifo_rd_en_d = 1'b0;
+      end
+    endcase
+  end
+
+  // Flip-flops
+  // ---------------------------------------------------------------------------
+  always_ff @(posedge i_aib_tx_clk or negedge i_rst_n)
+    if (!i_rst_n) begin
+      cs            <= IDLE;
+      fifo_rd_en_q  <= 1'b0;
+    end
+    else begin
+      cs            <= ns;
+      fifo_rd_en_q  <= fifo_rd_en_d;
+    end
+
+  // ---------------------------------------------------------------------------
+  // FIFO
+  // ---------------------------------------------------------------------------
+
   DW_asymfifo_s2_sf
   #(
     .data_in_width  (72),
@@ -108,43 +164,6 @@ module aib_adapter_tx
     .pop_full   (),
     .pop_error  ()
   );
-
-  // ---------------------------------------------------------------------------
-  always_comb begin
-    ns = cs;
-    fifo_rd_en_d = fifo_rd_en_q;
-
-    case (cs)
-      IDLE:
-        ns = LOWER_WORD;
-
-      LOWER_WORD: begin
-        ns = UPPER_WORD;
-
-        if (!fifo_rd_empty & !i_fs_fifo_full)
-          fifo_rd_en_d = 1'b1;
-        else
-          fifo_rd_en_d = 1'b0;
-      end
-
-      UPPER_WORD: begin
-        ns = LOWER_WORD;
-
-        fifo_rd_en_d = 1'b0;
-      end
-    endcase
-  end
-
-  // ---------------------------------------------------------------------------
-  always_ff @(posedge i_aib_tx_clk or negedge i_rst_n)
-    if (!i_rst_n) begin
-      cs            <= IDLE;
-      fifo_rd_en_q  <= 1'b0;
-    end
-    else begin
-      cs            <= ns;
-      fifo_rd_en_q  <= fifo_rd_en_d;
-    end
 
 endmodule
 

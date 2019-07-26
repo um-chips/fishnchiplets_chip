@@ -59,26 +59,26 @@ module aib_channel
 
   // ---------------------------------------------------------------------------
   aib_adapter u_aib_adapter (
-    .i_rst_n      (i_rst_n),
+    .i_rst_n        (i_rst_n),
 
-    .i_bus_clk    (i_bus_clk),
+    .i_bus_clk      (i_bus_clk),
 
-    .i_tx_valid   (i_tx_valid),
-    .o_tx_ready   (o_tx_ready),
-    .i_tx_data    (i_tx_data),
+    .i_bus_tx_valid (i_tx_valid),
+    .o_bus_tx_ready (o_tx_ready),
+    .i_bus_tx_data  (i_tx_data),
 
-    .o_rx_valid   (o_rx_valid),
-    .i_rx_ready   (i_rx_ready),
-    .o_rx_data    (o_rx_data),
+    .o_bus_rx_valid (o_rx_valid),
+    .i_bus_rx_ready (i_rx_ready),
+    .o_bus_rx_data  (o_rx_data),
 
-    .i_aib_tx_clk (i_aib_tx_clk),
-    .i_aib_rx_clk (aib_rx_clk),
+    .i_aib_tx_clk   (i_aib_tx_clk),
+    .i_aib_rx_clk   (aib_rx_clk),
 
-    .o_tx_data0   (tx_data0),
-    .o_tx_data1   (tx_data1),
+    .o_aib_tx_data0 (tx_data0),
+    .o_aib_tx_data1 (tx_data1),
 
-    .i_rx_data0   (rx_data0),
-    .i_rx_data1   (rx_data1)
+    .i_aib_rx_data0 (rx_data0),
+    .i_aib_rx_data1 (rx_data1)
   );
 
   // ---------------------------------------------------------------------------
