@@ -11,11 +11,11 @@ module aib_adapter_tx
 (
   input  logic              i_rst_n,
 
-  input  logic              i_ns_fifo_full,
-  input  logic              i_fs_fifo_full,
-
   // Core side
   input  logic              i_bus_clk,
+
+  input  logic              i_ns_fifo_full,
+  input  logic              i_fs_fifo_full,
 
   input  logic              i_bus_tx_valid,
   output logic              o_bus_tx_ready,

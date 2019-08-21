@@ -11,6 +11,8 @@ module aib_adapter
 (
   input  logic              i_rst_n,
 
+  input  logic              c_bypass_word_align,
+
   // Core side
   input  logic              i_bus_clk,
 
@@ -41,10 +43,10 @@ module aib_adapter
   aib_adapter_tx u_aib_adapter_tx (
     .i_rst_n        (i_rst_n),
 
+    .i_bus_clk      (i_bus_clk),
+
     .i_ns_fifo_full (ns_fifo_full),
     .i_fs_fifo_full (fs_fifo_full),
-
-    .i_bus_clk      (i_bus_clk),
 
     .i_bus_tx_valid (i_bus_tx_valid),
     .o_bus_tx_ready (o_bus_tx_ready),
@@ -60,10 +62,10 @@ module aib_adapter
   aib_adapter_rx u_aib_adapter_rx (
     .i_rst_n        (i_rst_n),
 
+    .i_bus_clk      (i_bus_clk),
+
     .o_ns_fifo_full (ns_fifo_full),
     .o_fs_fifo_full (fs_fifo_full),
-
-    .i_bus_clk      (i_bus_clk),
 
     .o_bus_rx_valid (o_bus_rx_valid),
     .i_bus_rx_ready (i_bus_rx_ready),

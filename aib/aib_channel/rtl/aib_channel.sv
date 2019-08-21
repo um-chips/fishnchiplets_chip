@@ -5,6 +5,7 @@
 // Description :
 //
 // Notes :
+//   AIB clock (i_aib_clk) and bus clock (i_bus_clk) must be of 2:1 clock ratio
 // *****************************************************************************
 
 module aib_channel
@@ -32,9 +33,10 @@ module aib_channel
   input  logic              c_ns_adapter_rstn,
   input  logic              c_ns_mac_rdy,
 
-  // ---------------------------------------------------------------------------
-  input  logic              i_aib_tx_clk,
+  input  logic              c_bypass_word_align,
 
+  // ---------------------------------------------------------------------------
+  input  logic              i_aib_clk,
   input  logic              i_bus_clk,
 
   // Tx datapath
@@ -49,6 +51,7 @@ module aib_channel
 );
   // Signal declarations
   // ---------------------------------------------------------------------------
+  logic             aib_tx_clk;
   logic             aib_rx_clk;
 
   logic [  19 : 0 ] tx_data0;
@@ -58,27 +61,32 @@ module aib_channel
   logic [  19 : 0 ] rx_data1;
 
   // ---------------------------------------------------------------------------
+  assign aib_tx_clk = i_aib_clk;
+
+  // ---------------------------------------------------------------------------
   aib_adapter u_aib_adapter (
-    .i_rst_n        (i_rst_n),
+    .i_rst_n              (i_rst_n),
 
-    .i_bus_clk      (i_bus_clk),
+    .c_bypass_word_align  (c_bypass_word_align),
 
-    .i_bus_tx_valid (i_tx_valid),
-    .o_bus_tx_ready (o_tx_ready),
-    .i_bus_tx_data  (i_tx_data),
+    .i_bus_clk            (i_bus_clk),
 
-    .o_bus_rx_valid (o_rx_valid),
-    .i_bus_rx_ready (i_rx_ready),
-    .o_bus_rx_data  (o_rx_data),
+    .i_bus_tx_valid       (i_tx_valid),
+    .o_bus_tx_ready       (o_tx_ready),
+    .i_bus_tx_data        (i_tx_data),
 
-    .i_aib_tx_clk   (i_aib_tx_clk),
-    .i_aib_rx_clk   (aib_rx_clk),
+    .o_bus_rx_valid       (o_rx_valid),
+    .i_bus_rx_ready       (i_rx_ready),
+    .o_bus_rx_data        (o_rx_data),
 
-    .o_aib_tx_data0 (tx_data0),
-    .o_aib_tx_data1 (tx_data1),
+    .i_aib_tx_clk         (aib_tx_clk),
+    .i_aib_rx_clk         (aib_rx_clk),
 
-    .i_aib_rx_data0 (rx_data0),
-    .i_aib_rx_data1 (rx_data1)
+    .o_aib_tx_data0       (tx_data0),
+    .o_aib_tx_data1       (tx_data1),
+
+    .i_aib_rx_data0       (rx_data0),
+    .i_aib_rx_data1       (rx_data1)
   );
 
   // ---------------------------------------------------------------------------
@@ -99,7 +107,7 @@ module aib_channel
     .c_ns_adapter_rstn (c_ns_adapter_rstn),
     .c_ns_mac_rdy      (c_ns_mac_rdy),
 
-    .i_tx_clk          (i_aib_tx_clk),
+    .i_tx_clk          (aib_tx_clk),
     .i_tx_clk_div2     (i_bus_clk),
     .i_tx_data0        (tx_data0),
     .i_tx_data1        (tx_data1),

@@ -11,11 +11,13 @@ module aib_adapter_rx
 (
   input  logic              i_rst_n,
 
-  output logic              o_ns_fifo_full,
-  output logic              o_fs_fifo_full,
+  input  logic              c_bypass_word_align,
 
   // Core side
   input  logic              i_bus_clk,
+
+  output logic              o_ns_fifo_full,
+  output logic              o_fs_fifo_full,
 
   output logic              o_bus_rx_valid,
   input  logic              i_bus_rx_ready,
@@ -46,7 +48,7 @@ module aib_adapter_rx
   wire              aib_data_valid = i_aib_rx_data0[19];
 
   // ---------------------------------------------------------------------------
-  assign fifo_wr = (cs == ALIGNED) & aib_data_valid;
+  assign fifo_wr = (cs == ALIGNED || c_bypass_word_align) & aib_data_valid;
 
   always_comb
     for (int i = 0; i < 18; i++) begin
@@ -77,11 +79,11 @@ module aib_adapter_rx
   // ---------------------------------------------------------------------------
   always_ff @(posedge i_aib_rx_clk or negedge i_rst_n)
     if (!i_rst_n) begin
-      cs          <= IDLE;
+      cs           <= IDLE;
       word_align_q <= 6'b0;
     end
     else begin
-      cs          <= ns;
+      cs           <= ns;
       word_align_q <= word_align_d;
     end
 
