@@ -60,21 +60,23 @@ module aib_adapter
 
   // ---------------------------------------------------------------------------
   aib_adapter_rx u_aib_adapter_rx (
-    .i_rst_n        (i_rst_n),
+    .i_rst_n              (i_rst_n),
 
-    .i_bus_clk      (i_bus_clk),
+    .c_bypass_word_align  (c_bypass_word_align),
 
-    .o_ns_fifo_full (ns_fifo_full),
-    .o_fs_fifo_full (fs_fifo_full),
+    .i_bus_clk            (i_bus_clk),
 
-    .o_bus_rx_valid (o_bus_rx_valid),
-    .i_bus_rx_ready (i_bus_rx_ready),
-    .o_bus_rx_data  (o_bus_rx_data),
+    .o_ns_fifo_full       (ns_fifo_full),
+    .o_fs_fifo_full       (fs_fifo_full),
 
-    .i_aib_rx_clk   (i_aib_rx_clk),
+    .o_bus_rx_valid       (o_bus_rx_valid),
+    .i_bus_rx_ready       (i_bus_rx_ready),
+    .o_bus_rx_data        (o_bus_rx_data),
 
-    .i_aib_rx_data0 (i_aib_rx_data0),
-    .i_aib_rx_data1 (i_aib_rx_data1)
+    .i_aib_rx_clk         (i_aib_rx_clk),
+
+    .i_aib_rx_data0       (i_aib_rx_data0),
+    .i_aib_rx_data1       (i_aib_rx_data1)
   );
 
 endmodule
