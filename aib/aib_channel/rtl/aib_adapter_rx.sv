@@ -41,9 +41,9 @@ module aib_adapter_rx
   state             cs, ns;
   logic [   5 : 0 ] word_align_d, word_align_q;
 
-  wire              aib_word_mark    = i_aib_rx_data1[19];
-  wire              aib_fs_fifo_full = i_aib_rx_data1[18];
-  wire              aib_data_valid   = i_aib_rx_data0[19];
+  wire              aib_word_mark  = i_aib_rx_data1[19];
+  wire              aib_fifo_full  = i_aib_rx_data1[18];
+  wire              aib_data_valid = i_aib_rx_data0[19];
 
   // ---------------------------------------------------------------------------
   assign fifo_wr = (cs == ALIGNED) & aib_data_valid;
@@ -115,7 +115,7 @@ module aib_adapter_rx
     if (!i_rst_n)
       fs_fifo_full_sync_q <= '{default: 0};
     else
-      fs_fifo_full_sync_q <= {fs_fifo_full_sync_q[1:0], aib_fs_fifo_full};
+      fs_fifo_full_sync_q <= {fs_fifo_full_sync_q[1:0], aib_fifo_full};
 
   // ---------------------------------------------------------------------------
   // FIFO
@@ -131,8 +131,8 @@ module aib_adapter_rx
     //.pop_ae_lvl     (),
     //.pop_af_lvl     (),
     .err_mode       (0), // stay active until reset
-    .push_sync      (3), // number of synchronizer stages from pop pointer
-    .pop_sync       (3), // number of synchronizer stages from push pointer
+    .push_sync      (2), // number of synchronizer stages from pop pointer
+    .pop_sync       (2), // number of synchronizer stages from push pointer
     .rst_mode       (0), // async reset including memory
     .byte_order     (1)  // first byte in LSB
   )

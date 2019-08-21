@@ -61,17 +61,21 @@ module aib_adapter_tx
   logic             fifo_rd_en;
   logic             fifo_rd_en_d, fifo_rd_en_q;
 
+  wire              aib_word_mark  = (cs == UPPER_WORD);
+  wire              aib_fifo_full  = i_ns_fifo_full;
+  wire              aib_data_valid = fifo_rd;
+
   // ---------------------------------------------------------------------------
   always_comb begin
-    o_aib_tx_data1[19] = (cs == UPPER_WORD);
-    o_aib_tx_data1[18] = i_ns_fifo_full;
+    o_aib_tx_data1[19] = aib_word_mark;
+    o_aib_tx_data1[18] = aib_fifo_full;
 
-    o_aib_tx_data0[19] = fifo_rd;
+    o_aib_tx_data0[19] = aib_data_valid;
     o_aib_tx_data0[18] = 1'b0;
 
     for (int i = 0; i < 18; i++) begin
-      o_aib_tx_data1[i] = fifo_rd_data[2*i+1];
-      o_aib_tx_data0[i] = fifo_rd_data[2*i+0];
+      o_aib_tx_data1[i] = aib_data_valid & fifo_rd_data[2*i+1];
+      o_aib_tx_data0[i] = aib_data_valid & fifo_rd_data[2*i+0];
     end
   end
 
@@ -133,8 +137,8 @@ module aib_adapter_tx
     //.pop_ae_lvl     (),
     //.pop_af_lvl     (),
     .err_mode       (0),
-    .push_sync      (1),
-    .pop_sync       (1),
+    .push_sync      (2),
+    .pop_sync       (2),
     .rst_mode       (0),
     .byte_order     (1)
   )
