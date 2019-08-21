@@ -3,6 +3,7 @@
 // Filename : aib_io_block.sv
 //
 // Description :
+//   This is just a wrapper for the IO buffers
 //
 // Notes :
 // *****************************************************************************

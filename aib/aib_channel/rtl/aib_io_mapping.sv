@@ -3,15 +3,23 @@
 // Filename : aib_io_mapping.sv
 //
 // Description :
+//   This module does the mapping of the AIB tx/rx datapath to the IO buffers,
+//   based on the master/slave and rotation settings
+//
+//   The official AIB design does not need this layer because it's always single
+//   role (master or slave) and not rotated
 //
 // Notes :
-//   TODO cfg signals also need to be remapped
+//   Configuration signals are NOT mapped, to reduce hardware muxing cost, the
+//   software needs to be aware of the mapping and set the configuration signals
+//   accordingly
 // *****************************************************************************
 
 module aib_io_mapping
 (
   inout  wire   [  95 : 0 ] iopad,
 
+  // Configuration signals
   input  logic              c_chn_rotated,
   input  logic              c_chn_mst_mode,
 
@@ -26,11 +34,13 @@ module aib_io_mapping
   input  logic              c_ns_adapter_rstn,
   input  logic              c_ns_mac_rdy,
 
+  // Tx datapath
   input  logic              i_tx_clk,
   input  logic              i_tx_clk_div2,
   input  logic  [  19 : 0 ] i_tx_data0,
   input  logic  [  19 : 0 ] i_tx_data1,
 
+  // Rx datapath
   output logic              o_rx_clk,
   output logic  [  19 : 0 ] o_rx_data0,
   output logic  [  19 : 0 ] o_rx_data1
@@ -60,19 +70,28 @@ module aib_io_mapping
   // Tx I/O mapping
   // ---------------------------------------------------------------------------
 
-  // TODO add free-running clock
+  // The official AIB uses free-running clock for the shift registers, here we'll
+  // simply use AIB clock since we're not actually using the shift registers
   generate
     for (genvar gi = 0; gi < 96; gi++) begin : cg_tx_clk
       // [48]: ns_rcv_div2_clk / [55]: ns_rcv_div2_clkb
       // [53]: ns_fwd_div2_clk / [54]: ns_fwd_div2_clkb
       if (gi == 48 || gi == 55 || gi == 53 || gi == 54)
-        b15cilb01ah1n02x3 inst (
-          .clk(i_tx_clk_div2), .en(tx_clk_en[gi]), .te(1'b0), .clkout(iob_tx_clk[gi])
-        );
+        //b15cilb01ah1n02x3 inst (
+        //  .clk(i_tx_clk_div2), .en(tx_clk_en[gi]), .te(1'b0), .clkout(iob_tx_clk[gi])
+        //);
+
+        // Originally planned to insert clock gate to save power, to simplify we
+        // won't do it this time
+        assign iob_tx_clk[gi] = i_tx_clk_div2;
       else
-        b15cilb01ah1n02x3 inst (
-          .clk(i_tx_clk), .en(tx_clk_en[gi]), .te(1'b0), .clkout(iob_tx_clk[gi])
-        );
+        //b15cilb01ah1n02x3 inst (
+        //  .clk(i_tx_clk), .en(tx_clk_en[gi]), .te(1'b0), .clkout(iob_tx_clk[gi])
+        //);
+
+        // Originally planned to insert clock gate to save power, to simplify we
+        // won't do it this time
+        assign iob_tx_clk[gi] = i_tx_clk;
     end
   endgenerate
 
@@ -197,7 +216,7 @@ module aib_io_mapping
   assign rx_retime_clk = rx_bump_clk;
 
   always_comb
-    // TODO only apply clock to those in need
+    // Again, no clock gate inserted this time for simplicity
     for (int i = 0; i < 96; i++) begin
       iob_rx_sample_clk[i] = rx_sample_clk;
       iob_rx_retime_clk[i] = rx_retime_clk;
