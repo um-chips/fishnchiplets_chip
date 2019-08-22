@@ -10,7 +10,7 @@
 
 module aib_io_block #(parameter NumIo = 96)
 (
-  inout  wire   [ NumIo-1 : 0 ] iopad,
+  inout  wire   [ NumIo-1 : 0 ] pad_aib_io,
 
   // Configuration signals
   input  logic                  c_io_tx_en      [NumIo-1:0],
@@ -37,7 +37,7 @@ module aib_io_block #(parameter NumIo = 96)
   generate
     for (genvar gi = 0; gi < NumIo; gi++) begin : io
       aib_io_buffer inst (
-        .iopad            (iopad           [gi]),
+        .pad_aib_io       (pad_aib_io      [gi]),
 
         .c_io_tx_en       (c_io_tx_en      [gi]),
         .c_io_ddr_mode    (c_io_ddr_mode   [gi]),

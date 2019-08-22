@@ -1,1 +1,8 @@
 *.swp
+
+*sim
+*syn
+*apr
+*layout
+*lef
+*lib

@@ -9,15 +9,16 @@
 
 module aib_top #(NumChannels = 6)
 (
-  inout  wire   [  95 : 0 ] iopad [NumChannels-1:0],
-
   input  logic              i_clk,
-  input  logic              i_rst_n,
 
-  output logic              o_uart_tx,
-  input  logic              i_uart_rx,
+  input  logic              pad_rst_n,
 
-  output logic              o_conf_done,
+  inout  wire   [  95 : 0 ] pad_aib_io [NumChannels-1:0],
+
+  output logic              pad_uart_tx,
+  input  logic              pad_uart_rx,
+
+  output logic              pad_conf_done,
 
   // UMAI master interface
   output logic              o_umai_mst_wcmd_valid,
@@ -149,7 +150,7 @@ module aib_top #(NumChannels = 6)
   generate
     for (genvar gi = 0; gi < NumChannels; gi++) begin: u_aib_channels
       aib_channel inst (
-        .iopad                (iopad            [gi]),
+        .pad_aib_io           (pad_aib_io       [gi]),
 
         .i_rst_n              (i_rst_n),
 

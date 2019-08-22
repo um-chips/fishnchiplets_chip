@@ -17,7 +17,7 @@
 
 module aib_io_mapping
 (
-  inout  wire   [  95 : 0 ] iopad,
+  inout  wire   [  95 : 0 ] pad_aib_io,
 
   // Configuration signals
   input  logic              c_chn_rotated,
@@ -278,7 +278,7 @@ module aib_io_mapping
   // ---------------------------------------------------------------------------
 
   aib_io_block #(.NumIo(96)) u_aib_io_block (
-    .iopad           (iopad),
+    .pad_aib_io      (pad_aib_io),
 
     .c_io_tx_en      (c_io_tx_en),
     .c_io_ddr_mode   (c_io_ddr_mode),

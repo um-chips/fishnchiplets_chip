@@ -10,7 +10,7 @@
 
 module aib_channel
 (
-  inout  wire   [  95 : 0 ] iopad,
+  inout  wire   [  95 : 0 ] pad_aib_io,
 
   input  logic              i_rst_n,
 
@@ -91,7 +91,7 @@ module aib_channel
 
   // ---------------------------------------------------------------------------
   aib_io_mapping u_aib_io_mapping (
-    .iopad             (iopad),
+    .pad_aib_io        (pad_aib_io),
 
     .c_chn_rotated     (c_chn_rotated),
     .c_chn_mst_mode    (c_chn_mst_mode),

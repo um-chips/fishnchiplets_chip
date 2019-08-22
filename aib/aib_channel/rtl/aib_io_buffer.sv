@@ -12,7 +12,7 @@
 
 module aib_io_buffer
 (
-  inout  wire               iopad,
+  inout  wire               pad_aib_io,
 
   // Configuration signals
   input  logic              c_io_tx_en,
@@ -124,7 +124,7 @@ module aib_io_buffer
   assign drv_pull_down =  c_drv_pull_down;
 
   aib_driver u_aib_driver (
-    .PAD    (iopad),
+    .PAD    (pad_aib_io),
 
     .PU_N   (drv_pull_up_n),
     .PD     (drv_pull_down),
