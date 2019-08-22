@@ -9,7 +9,10 @@
 
 module aib_top #(NumChannels = 6)
 (
-  input  logic              i_clk,
+  // External (off-chip) interface
+  // ---------------------------------------------------------------------------
+
+  input  logic              pad_bypass_clk,
 
   input  logic              pad_rst_n,
 
@@ -20,43 +23,46 @@ module aib_top #(NumChannels = 6)
 
   output logic              pad_conf_done,
 
+  // Internal (on-chip) interface
+  // ---------------------------------------------------------------------------
+
   // UMAI master interface
-  output logic              o_umai_mst_wcmd_valid,
-  input  logic              i_umai_mst_wcmd_ready,
-  output logic  [  31 : 0 ] o_umai_mst_wcmd_addr,
-  output logic  [   5 : 0 ] o_umai_mst_wcmd_len,
+  output logic              o_umai_mst_wcmd_valid [1:0],
+  input  logic              i_umai_mst_wcmd_ready [1:0],
+  output logic  [  31 : 0 ] o_umai_mst_wcmd_addr  [1:0],
+  output logic  [   5 : 0 ] o_umai_mst_wcmd_len   [1:0],
 
-  output logic              o_umai_mst_rcmd_valid,
-  input  logic              i_umai_mst_rcmd_ready,
-  output logic  [  31 : 0 ] o_umai_mst_rcmd_addr,
-  output logic  [   5 : 0 ] o_umai_mst_rcmd_len,
+  output logic              o_umai_mst_rcmd_valid [1:0],
+  input  logic              i_umai_mst_rcmd_ready [1:0],
+  output logic  [  31 : 0 ] o_umai_mst_rcmd_addr  [1:0],
+  output logic  [   5 : 0 ] o_umai_mst_rcmd_len   [1:0],
 
-  output logic              o_umai_mst_wvalid,
-  input  logic              i_umai_mst_wready,
-  output logic  [ 511 : 0 ] o_umai_mst_wdata,
+  output logic              o_umai_mst_wvalid     [1:0],
+  input  logic              i_umai_mst_wready     [1:0],
+  output logic  [ 511 : 0 ] o_umai_mst_wdata      [1:0],
 
-  input  logic              i_umai_mst_rvalid,
-  output logic              o_umai_mst_rready,
-  input  logic  [ 511 : 0 ] i_umai_mst_rdata,
+  input  logic              i_umai_mst_rvalid     [1:0],
+  output logic              o_umai_mst_rready     [1:0],
+  input  logic  [ 511 : 0 ] i_umai_mst_rdata      [1:0],
 
   // UMAI slave interface
-  input  logic              i_umai_slv_wcmd_valid,
-  output logic              o_umai_slv_wcmd_ready,
-  input  logic  [  31 : 0 ] i_umai_slv_wcmd_addr,
-  input  logic  [   5 : 0 ] i_umai_slv_wcmd_len,
+  input  logic              i_umai_slv_wcmd_valid [1:0],
+  output logic              o_umai_slv_wcmd_ready [1:0],
+  input  logic  [  31 : 0 ] i_umai_slv_wcmd_addr  [1:0],
+  input  logic  [   5 : 0 ] i_umai_slv_wcmd_len   [1:0],
 
-  input  logic              i_umai_slv_rcmd_valid,
-  output logic              o_umai_slv_rcmd_ready,
-  input  logic  [  31 : 0 ] i_umai_slv_rcmd_addr,
-  input  logic  [   5 : 0 ] i_umai_slv_rcmd_len,
+  input  logic              i_umai_slv_rcmd_valid [1:0],
+  output logic              o_umai_slv_rcmd_ready [1:0],
+  input  logic  [  31 : 0 ] i_umai_slv_rcmd_addr  [1:0],
+  input  logic  [   5 : 0 ] i_umai_slv_rcmd_len   [1:0],
 
-  input  logic              i_umai_slv_wvalid,
-  output logic              o_umai_slv_wready,
-  input  logic  [ 511 : 0 ] i_umai_slv_wdata,
+  input  logic              i_umai_slv_wvalid     [1:0],
+  output logic              o_umai_slv_wready     [1:0],
+  input  logic  [ 511 : 0 ] i_umai_slv_wdata      [1:0],
 
-  output logic              o_umai_slv_rvalid,
-  input  logic              i_umai_slv_rready,
-  output logic  [ 511 : 0 ] o_umai_slv_rdata
+  output logic              o_umai_slv_rvalid     [1:0],
+  input  logic              i_umai_slv_rready     [1:0],
+  output logic  [ 511 : 0 ] o_umai_slv_rdata      [1:0]
 );
   // ---------------------------------------------------------------------------
   logic             tx_valid [NumChannels-1:0];
@@ -80,7 +86,7 @@ module aib_top #(NumChannels = 6)
 
   // ---------------------------------------------------------------------------
   aib_top_reg u_aib_top_reg (
-    .i_clk      (i_clk),
+    .i_clk      (pad_bypass_clk),
     .i_rst_n    (i_rst_n),
 
     .o_uart_tx  (o_uart_tx),
