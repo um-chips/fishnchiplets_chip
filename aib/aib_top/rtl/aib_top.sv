@@ -11,7 +11,13 @@ module aib_top #(NumChannels = 6)
 (
   inout  wire   [  95 : 0 ] iopad [NumChannels-1:0],
 
+  input  logic              i_clk,
   input  logic              i_rst_n,
+
+  output logic              o_uart_tx,
+  input  logic              i_uart_rx,
+
+  output logic              o_conf_done,
 
   // UMAI master interface
   output logic              o_umai_mst_wcmd_valid,
@@ -70,6 +76,15 @@ module aib_top #(NumChannels = 6)
   logic [   3 : 0 ] c_drv_strength  [NumChannels-1:0][95:0];
   logic             c_drv_pull_up   [NumChannels-1:0][95:0];
   logic             c_drv_pull_down [NumChannels-1:0][95:0];
+
+  // ---------------------------------------------------------------------------
+  aib_top_reg u_aib_top_reg (
+    .i_clk      (i_clk),
+    .i_rst_n    (i_rst_n),
+
+    .o_uart_tx  (o_uart_tx),
+    .i_uart_rx  (i_uart_rx)
+  );
 
   // ---------------------------------------------------------------------------
   umai #(.NumChannels(NumChannels)) u_umai (
