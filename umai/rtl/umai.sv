@@ -9,9 +9,12 @@
 
 module umai #(NumChannels = 6)
 (
-  input  logic              i_clk,
-
   input  logic              i_rst_n,
+
+  input  logic              i_ip_clk              [1:0],
+  input  logic              i_bus_clk,
+
+  input  logic              c_ip_sel,
 
   // UMAI master interface
   input  logic  [   2 : 0 ] c_umai_mst_first_chn_id,
@@ -104,11 +107,49 @@ module umai #(NumChannels = 6)
   logic             umai_slv_rready;
   logic [ 511 : 0 ] umai_slv_rdata;
 
+  logic             mst_tx_valid [NumChannels-1:0];
+  logic             mst_tx_ready [NumChannels-1:0];
+  logic [  71 : 0 ] mst_tx_data  [NumChannels-1:0];
+
+  logic             mst_rx_valid [NumChannels-1:0];
+  logic             mst_rx_ready [NumChannels-1:0];
+  logic [  71 : 0 ] mst_rx_data  [NumChannels-1:0];
+
+  logic             slv_tx_valid [NumChannels-1:0];
+  logic             slv_tx_ready [NumChannels-1:0];
+  logic [  71 : 0 ] slv_tx_data  [NumChannels-1:0];
+
+  logic             slv_rx_valid [NumChannels-1:0];
+  logic             slv_rx_ready [NumChannels-1:0];
+  logic [  71 : 0 ] slv_rx_data  [NumChannels-1:0];
+
+  // Output assignments
+  // ---------------------------------------------------------------------------
+  always_comb
+    for (int c = 0; c < NumChannels; c++) begin
+      o_tx_valid[c] = mst_tx_valid[c] | slv_tx_valid[c];
+      o_tx_data [c] = mst_tx_data [c] | slv_tx_data [c];
+
+      mst_tx_ready[c] = i_tx_ready[c];
+      slv_tx_ready[c] = i_tx_ready[c];
+
+      o_rx_ready[c] = mst_rx_ready[c] + slv_rx_ready[c];
+
+      mst_rx_valid[c] = i_rx_valid[c];
+      mst_rx_data [c] = i_rx_data [c];
+
+      slv_rx_valid[c] = i_rx_valid[c];
+      slv_rx_data [c] = i_rx_data [c];
+    end
+
   // ---------------------------------------------------------------------------
   umai_arb_afifo #(.NumChannels(NumChannels)) u_umai_arb_afifo (
-    .i_clk                (i_clk),
-
     .i_rst_n              (i_rst_n),
+
+    .i_ip_clk             (i_ip_clk),
+    .i_bus_clk            (i_bus_clk),
+
+    .c_ip_sel             (c_ip_sel),
 
     // External interface - connected to the two designs
     // -------------------------------------------------------------------------
@@ -195,7 +236,7 @@ module umai #(NumChannels = 6)
 
   // ---------------------------------------------------------------------------
   umai_master #(.NumChannels(NumChannels)) u_umai_master (
-    .i_clk              (i_clk),
+    .i_clk              (i_bus_clk),
     .i_rst_n            (i_rst_n),
 
     .c_first_chn_id     (c_umai_mst_first_chn_id),
@@ -221,18 +262,18 @@ module umai #(NumChannels = 6)
     .i_umai_rdata       (umai_mst_rdata),
 
     // AIB interface
-    .o_tx_valid         (),
-    .i_tx_ready         (),
-    .o_tx_data          (),
+    .o_tx_valid         (mst_tx_valid),
+    .i_tx_ready         (mst_tx_ready),
+    .o_tx_data          (mst_tx_data),
 
-    .i_rx_valid         (),
-    .o_rx_ready         (),
-    .i_rx_data          ()
+    .i_rx_valid         (mst_rx_valid),
+    .o_rx_ready         (mst_rx_ready),
+    .i_rx_data          (mst_rx_data)
   );
 
   // ---------------------------------------------------------------------------
   umai_slave #(.NumChannels(NumChannels)) u_umai_slave (
-    .i_clk              (i_clk),
+    .i_clk              (i_bus_clk),
     .i_rst_n            (i_rst_n),
 
     .c_first_chn_id     (c_umai_slv_first_chn_id),
@@ -258,13 +299,13 @@ module umai #(NumChannels = 6)
     .o_umai_rdata       (umai_slv_rdata),
 
     // AIB interface
-    .o_tx_valid         (),
-    .i_tx_ready         (),
-    .o_tx_data          (),
+    .o_tx_valid         (slv_tx_valid),
+    .i_tx_ready         (slv_tx_ready),
+    .o_tx_data          (slv_tx_data),
 
-    .i_rx_valid         (),
-    .o_rx_ready         (),
-    .i_rx_data          ()
+    .i_rx_valid         (slv_rx_valid),
+    .o_rx_ready         (slv_rx_ready),
+    .i_rx_data          (slv_rx_data)
   );
 
 endmodule
