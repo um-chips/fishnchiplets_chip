@@ -225,7 +225,11 @@ module umai_master #(parameter NumChannels = 6)
 
     // If we have only one channel and it's used to send command, then there will
     // be no channel for data
-    if (first_chn_id > last_chn_id)
+    //if (first_chn_id > last_chn_id)
+    //  wdata_all_channels_valid = 1'b0;
+    // This is added to disable packing command with data, as a workaround to a
+    // known bug that happens when a command is read but the data buffer is full
+    if (i_rx_valid[c_first_chn_id] && i_rx_data[c_first_chn_id][71])
       wdata_all_channels_valid = 1'b0;
     else
       // Otherwise check if all the channels for write data are valid

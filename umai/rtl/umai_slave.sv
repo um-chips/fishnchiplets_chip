@@ -212,7 +212,11 @@ module umai_slave #(parameter NumChannels = 6)
 
     // If we have only one channel and it's used to send command, then there will
     // be no channel for data
-    if (first_chn_id > last_chn_id)
+    //if (first_chn_id > last_chn_id)
+    //  wdata_all_channels_ready = 1'b0;
+    // This is added to disable packing command with data, as a workaround to a
+    // known bug
+    if (!rcmd_buffer_empty || !wcmd_buffer_empty)
       wdata_all_channels_ready = 1'b0;
     else
       // Otherwise check if all the channels for write data are ready
