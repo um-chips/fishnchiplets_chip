@@ -128,7 +128,7 @@ module aib_top #(NumChannels = 6)
   );
 
   // ---------------------------------------------------------------------------
-  aib_top_reg u_aib_top_reg (
+  aib_top_reg #(.NumChannels(NumChannels)) u_aib_top_reg (
     .i_clk                (bus_clk),
     .i_rst_n              (sys_rst_n),
 
