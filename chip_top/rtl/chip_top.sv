@@ -71,6 +71,12 @@ module chip_top #(parameter NumChannels = 6)
   logic [ 511 : 0 ] umai_slv_rdata      [1:0];
 
   // ---------------------------------------------------------------------------
+`ifdef SIM
+  assign ip_clk = '{u_aib_top.u_aib_top_control.o_bus_clk,
+                    u_aib_top.u_aib_top_control.o_bus_clk};
+`endif
+
+  // ---------------------------------------------------------------------------
   aib_top #(.NumChannels(NumChannels)) u_aib_top (
 
     // External (off-chip) interface
@@ -133,31 +139,6 @@ module chip_top #(parameter NumChannels = 6)
     .i_umai_slv_rready      (umai_slv_rready),
     .o_umai_slv_rdata       (umai_slv_rdata)
   );
-
-  // ---------------------------------------------------------------------------
-`ifdef SIM
-  assign ip_clk = '{u_aib_top.u_aib_top_control.o_bus_clk,
-                    u_aib_top.u_aib_top_control.o_bus_clk};
-
-  initial begin
-    @(posedge pad_conf_done);
-
-    @(posedge u_aib_top.u_aib_top_control.o_bus_clk); #0.1;
-      umai_slv_wcmd_valid[0] = 1'b1;
-      umai_slv_wcmd_addr [0] = 32'hdeadbeef;
-      umai_slv_wcmd_len  [0] = 6'd0;
-
-    @(posedge u_aib_top.u_aib_top_control.o_bus_clk); #0.1;
-      umai_slv_wcmd_valid[0] = 1'b0;
-
-    @(posedge u_aib_top.u_aib_top_control.o_bus_clk); #0.1;
-      umai_slv_wvalid[0] = 1'b1;
-      umai_slv_wdata [0] = {16{32'hdeadbee0}};
-
-    @(posedge u_aib_top.u_aib_top_control.o_bus_clk); #0.1;
-      umai_slv_wvalid[0] = 1'b0;
-  end
-`endif
 
 endmodule
 
