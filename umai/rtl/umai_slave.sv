@@ -220,17 +220,15 @@ module umai_slave #(parameter NumChannels = 6)
         if (i >= first_chn_id && i <= last_chn_id)
           wdata_all_channels_ready &= i_tx_ready[i];
 
-    // We have write data to send
-    if (wdata_buffer_rready) begin
+    // We have write data to send, and all channels are ready
+    if (wdata_all_channels_ready & wdata_buffer_rready) begin
       for (int i = 0; i < NumChannels; i++)
         if (i >= first_chn_id && i <= last_chn_id) begin
           o_tx_valid[i] = 1'b1;
           o_tx_data [i] = {7'b0, wdata_buffer_rdata_valid[i], wdata_buffer_rdata[i]};
         end
 
-      // And all channels are ready
-      if (wdata_all_channels_ready)
-        wdata_buffer_rvalid = 1'b1;
+      wdata_buffer_rvalid = 1'b1;
     end
   end
 
