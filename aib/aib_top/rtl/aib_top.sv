@@ -17,13 +17,13 @@ module aib_top #(NumChannels = 6)
   inout  wire   [  95 : 0 ] pad_aib_io            [NumChannels-1:0],
 
   // C4 bumps
+  inout  wire               pad_conf_done,
+
   input  logic              pad_rst_n,
 
   input  logic              pad_bypass,
   input  logic              pad_bypass_clk,
   output logic              pad_slow_clk,
-
-  output logic              pad_conf_done,
 
   output logic              pad_uart_tx,
   input  logic              pad_uart_rx,
@@ -107,6 +107,11 @@ module aib_top #(NumChannels = 6)
   logic [   2 : 0 ] c_slv_first_chn_id;
   logic [   2 : 0 ] c_slv_last_chn_id;
 
+  logic             c_conf_done;
+
+  // ---------------------------------------------------------------------------
+  assign /*inout*/ pad_conf_done = c_conf_done ? 1'bz : 1'b0;
+
   // ---------------------------------------------------------------------------
   aib_top_control u_aib_top_control (
     .i_rst_n        (pad_rst_n),
@@ -147,7 +152,9 @@ module aib_top #(NumChannels = 6)
     .c_mst_first_chn_id   (c_mst_first_chn_id),
     .c_mst_last_chn_id    (c_mst_last_chn_id),
     .c_slv_first_chn_id   (c_slv_first_chn_id),
-    .c_slv_last_chn_id    (c_slv_last_chn_id)
+    .c_slv_last_chn_id    (c_slv_last_chn_id),
+
+    .c_conf_done          (c_conf_done)
   );
 
   // ---------------------------------------------------------------------------

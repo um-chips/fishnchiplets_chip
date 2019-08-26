@@ -33,7 +33,9 @@ module aib_top_reg #(parameter NumChannels = 6)
   output logic  [   2 : 0 ] c_mst_first_chn_id,
   output logic  [   2 : 0 ] c_mst_last_chn_id,
   output logic  [   2 : 0 ] c_slv_first_chn_id,
-  output logic  [   2 : 0 ] c_slv_last_chn_id
+  output logic  [   2 : 0 ] c_slv_last_chn_id,
+
+  output logic              c_conf_done
 );
   // Signal declarations
   // ---------------------------------------------------------------------------
@@ -52,6 +54,8 @@ module aib_top_reg #(parameter NumChannels = 6)
   logic [   4 : 0 ] chn_config_q [NumChannels-1:0];
 
   logic [  12 : 0 ] umai_config_d, umai_config_q;
+
+  logic [  31 : 0 ] chip_config_d, chip_config_q;
 
   // Output assignments
   // ---------------------------------------------------------------------------
@@ -79,12 +83,15 @@ module aib_top_reg #(parameter NumChannels = 6)
   assign /*output*/ c_slv_last_chn_id  = umai_config_q[ 3: 1];
   assign /*output*/ c_ip_sel           = umai_config_q[ 0];
 
+  assign /*output*/ c_conf_done = chip_config_q[0];
+
   // Write data path
   // ---------------------------------------------------------------------------
   always_comb begin
     iob_config_d  = iob_config_q;
     chn_config_d  = chn_config_q;
     umai_config_d = umai_config_q;
+    chip_config_d = chip_config_q;
 
     if (penable & pwrite)
       case (paddr[13:12])
@@ -96,6 +103,9 @@ module aib_top_reg #(parameter NumChannels = 6)
 
         2'd2:
           umai_config_d = pwdata;
+
+        2'd3:
+          chip_config_d = pwdata;
       endcase
   end
 
@@ -114,6 +124,9 @@ module aib_top_reg #(parameter NumChannels = 6)
 
         2'd2:
           prdata_d = umai_config_q;
+
+        2'd3:
+          prdata_d = chip_config_q;
       endcase
   end
 
@@ -126,7 +139,7 @@ module aib_top_reg #(parameter NumChannels = 6)
     .i_clk      (i_clk),
     .i_rst_n    (i_rst_n),
 
-    .c_baud_cyc (8'd3),
+    .c_baud_cyc (8'd1),
 
     .o_uart_tx  (o_uart_tx),
     .i_uart_rx  (i_uart_rx),
@@ -148,6 +161,7 @@ module aib_top_reg #(parameter NumChannels = 6)
       iob_config_q  <= '{default: 0};
       chn_config_q  <= '{default: 0};
       umai_config_q <= '{default: 0};
+      chip_config_q <= '{default: 0};
     end
     else begin
       pready_q <= pready_d;
@@ -156,6 +170,7 @@ module aib_top_reg #(parameter NumChannels = 6)
       iob_config_q  <= iob_config_d;
       chn_config_q  <= chn_config_d;
       umai_config_q <= umai_config_d;
+      chip_config_q <= chip_config_d;
     end
 
 endmodule

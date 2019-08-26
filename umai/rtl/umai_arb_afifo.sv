@@ -346,7 +346,7 @@ module umai_arb_afifo #(NumChannels = 6)
 
     .clk_push   (ip_clk),
     .push_req_n (~mst_rdata_fifo_write),
-    .data_in    (mst_rdata_fifo_rdata),
+    .data_in    (mst_rdata_fifo_wdata),
     .push_empty (),
     .push_ae    (),
     .push_hf    (),
@@ -411,7 +411,7 @@ module umai_arb_afifo #(NumChannels = 6)
 
     .clk_push   (ip_clk),
     .push_req_n (~slv_wcmd_fifo_write),
-    .data_in    (slv_wcmd_fifo_rdata),
+    .data_in    (slv_wcmd_fifo_wdata),
     .push_empty (),
     .push_ae    (),
     .push_hf    (),
@@ -476,7 +476,7 @@ module umai_arb_afifo #(NumChannels = 6)
 
     .clk_push   (ip_clk),
     .push_req_n (~slv_rcmd_fifo_write),
-    .data_in    (slv_rcmd_fifo_rdata),
+    .data_in    (slv_rcmd_fifo_wdata),
     .push_empty (),
     .push_ae    (),
     .push_hf    (),
@@ -540,7 +540,7 @@ module umai_arb_afifo #(NumChannels = 6)
 
     .clk_push   (ip_clk),
     .push_req_n (~slv_wdata_fifo_write),
-    .data_in    (slv_wdata_fifo_rdata),
+    .data_in    (slv_wdata_fifo_wdata),
     .push_empty (),
     .push_ae    (),
     .push_hf    (),
@@ -605,7 +605,7 @@ module umai_arb_afifo #(NumChannels = 6)
 
     .clk_push   (i_bus_clk),
     .push_req_n (~slv_rdata_fifo_write),
-    .data_in    (slv_rdata_fifo_rdata),
+    .data_in    (slv_rdata_fifo_wdata),
     .push_empty (),
     .push_ae    (),
     .push_hf    (),
