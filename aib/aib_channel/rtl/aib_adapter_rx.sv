@@ -149,7 +149,7 @@ module aib_adapter_rx
     .push_ae    (),
     .push_hf    (),
     .push_af    (),
-    .push_full  (fifo_wr_full),
+    .push_full  (),
     .ram_full   (),
     .part_wd    (),
     .push_error (),
@@ -159,9 +159,12 @@ module aib_adapter_rx
     .data_out   (fifo_rd_data),
     .pop_empty  (fifo_rd_empty),
     .pop_ae     (),
-    .pop_hf     (),
+    // Block the other side when this FIFO is half full, doing so is a bit wasteful
+    // but simple, also it's already on the read side so no extra clock domain
+    // crossing needed
+    .pop_hf     (fifo_rd_full),
     .pop_af     (),
-    .pop_full   (fifo_rd_full),
+    .pop_full   (),
     .pop_error  ()
   );
 
