@@ -215,7 +215,7 @@ module umai_slave #(parameter NumChannels = 6)
     //if (first_chn_id > last_chn_id)
     //  wdata_all_channels_ready = 1'b0;
     // This is added to disable packing command with data, as a workaround to a
-    // known bug
+    // known bug that happens when a command is read but the data buffer is full
     if (!rcmd_buffer_empty || !wcmd_buffer_empty)
       wdata_all_channels_ready = 1'b0;
     else

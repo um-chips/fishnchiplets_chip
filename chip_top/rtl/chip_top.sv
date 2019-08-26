@@ -7,7 +7,7 @@
 // Notes :
 // *****************************************************************************
 
-module chip_top #(parameter NumChannels = 6)
+module chip_top #(parameter NumChannels = 8)
 (
   // External (off-chip) interface
   // ---------------------------------------------------------------------------
